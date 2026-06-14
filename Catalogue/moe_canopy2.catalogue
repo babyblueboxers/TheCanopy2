@@ -1,0 +1,254 @@
+TAG "Agent Help 1 1 24218"
+"Kawoosh"
+"A shimmering warp in the canopy air. Step through and see where the forest sends you."
+
+TAG "Agent Help 1 1 24204"
+"Canopy Waterfall"
+"The great waterfall at the heart of The Canopy. Its spray feeds the pond below and fills the cave with mist and sound."
+
+TAG "Agent Help 1 1 24203"
+"Canopy Overlay"
+"Part of the painted scenery of The Canopy: bridges, cave mouths, leaf layers, and other details that sit above the forest floor."
+
+TAG "Agent Help 1 1 24205"
+"Chemistry Emitter"
+"An invisible source of light, heat, water, nutrients, or smell that keeps this corner of the metaroom habitable. The Canopy uses many of these to balance its biomes."
+
+TAG "Agent Help 1 1 24206"
+"Main Flower Spawner"
+"A hidden gardener for the canopy's signature blooms. While it remains, new main flowers may appear across the forest floor."
+
+TAG "Agent Help 1 1 24202"
+"Ambient Sound"
+"A quiet speaker for the forest: waterfall roar, splashes, or distant woodland ambience."
+
+TAG "Agent Help 1 1 24212"
+"Bubble Machine Part"
+"A detached piece of the bubble machine's CAOS machinery."
+
+TAG "Agent Help 1 3 24205"
+"The Canopy Favourite Signpost"
+"The signpost for The Canopy as a favourite place in Docking Station."
+
+TAG "Agent Help 1 4 24205"
+"The Canopy Favourite Place"
+"Takes you to The Canopy."
+
+TAG "ToolTip 1 4 24205"
+"The Canopy"
+
+TAG "Agent Help 1 3 24200"
+"Heart Popper"
+"When a creature is tickled here, this factory releases a burst of pet hearts."
+
+TAG "Agent Help 1 3 24201"
+"Pet Hearts"
+"A cloud of hearts that scatter and pop when a creature has been fussed over."
+
+TAG "Agent Help 1 3 24202"
+"Pet Heart"
+"A single floating heart from a tickle or cuddle."
+
+TAG "Agent Help 2 13 24204"
+"Leaf Bug"
+"A gentle good bug of The Canopy. It wanders the floor, cleans up detritus, and may seek a mate to lay eggs. It drowns if kept too long over deep water."
+
+TAG "Agent Help 2 18 24204"
+"Leaf Bug Egg"
+"An egg laid by a leaf bug. Creatures may carry or eat it; given time it hatches into a new leaf bug."
+
+TAG "Agent Help 2 13 24205"
+"Red Butterfly"
+"A bright butterfly. It flutters through the canopy and may drown if trapped over water."
+
+TAG "Agent Help 2 13 24206"
+"Red Caterpillar"
+"The caterpillar stage of the red butterfly. Given time it will transform into a butterfly itself."
+
+TAG "Agent Help 2 18 24205"
+"Red Caterpillar Egg"
+"An egg from which a caterpillar hatches. Creatures cannot see it, but the hand may still move it."
+
+TAG "Agent Help 2 24 24217"
+"Red Caterpillar Egg Maker"
+"Places red caterpillar eggs in The Canopy when the forest needs more butterflies."
+
+TAG "Agent Help 2 7 24209"
+"Main Canopy Flower"
+"The tall signature flower of this metaroom."
+
+TAG "Agent Help 2 8 24209"
+"Main Flower Fruit"
+"A fruit from the canopy flower. Takes several bites to eat and is very tasty."
+
+TAG "Agent Help 2 10 24209"
+"Main Flower Fruit Detritus"
+"A rotting fruit."
+
+TAG "Agent Help 2 7 24207"
+"Foxglove"
+"A tall foxglove in full bloom. Water it when young and it may eventually scatter seeds. It prefers normal, boggy, or drained soil."
+
+TAG "Agent Help 2 3 24207"
+"Foxglove Seed"
+"A tumbling foxglove seed. If it finds suitable soil and chemistry it may sprout into an adult plant."
+
+TAG "Agent Help 2 6 24217"
+"Canopy Grass"
+"A clump of grass carpeting the forest floor."
+
+TAG "Agent Help 2 3 24217"
+"Grass Seed"
+"A seed that may grow into a grass clump where the light and soil suit it."
+
+TAG "Agent Help 2 7 24208"
+"Canopy Daisies"
+"A patch of daisies growing in the canopy shade."
+
+TAG "Agent Help 2 3 24208"
+"Daisy Seed"
+"A daisy seed waiting for the right spot to open."
+
+TAG "Agent Help 2 6 24209"
+"Canopy Fern"
+"A leafy fern clump rooted in the undergrowth."
+
+TAG "Agent Help 2 3 24209"
+"Fern Seed"
+"A fern spore packet that may sprout where conditions are kind."
+
+TAG "Agent Help 2 4 24211"
+"Canopy Onion"
+"A mature onion plant in The Canopy. Its life cycle may produce seeds and sprouts."
+
+TAG "Agent Help 2 3 24211"
+"Onion Seed"
+"A seed from the onion patch, ready to roll to new ground."
+
+TAG "Agent Help 2 11 24211"
+"Onion"
+"A vegetable with many layers and a tangy, distinct flavor."
+
+TAG "Agent Help 2 8 24210"
+"Honey Shroom"
+"A mushroom that resembles a pancake. Spores may spread when it is ready."
+
+TAG "Agent Help 2 3 24210"
+"Honey Shroom Spore"
+"A drifting spore from the honey shroom."
+
+TAG "Agent Help 2 5 24207"
+"Prickly Pear"
+"A cactus of the drier ledges. Handle with care; it may drop fruit when conditions are right."
+
+TAG "Agent Help 2 8 24207"
+"Prickly Pear Fruit"
+"Fruit or seed material from the prickly pear, ready to roll away and root."
+
+TAG "Agent Help 2 6 24214"
+"Auburn Seaweed"
+"An auburn seaweed plant."
+
+TAG "Agent Help 2 3 24214"
+"Auburn Seaweed Seed"
+"Seed material that may grow into another auburn seaweed."
+
+TAG "Agent Help 2 6 24213"
+"Anacharis Waterweed"
+"A freshwater, easy to grow plant."
+
+TAG "Agent Help 2 3 24213"
+"Anacharis Waterweed Seed"
+"Seed for an anacharis waterweed."
+
+TAG "Agent Help 2 6 24212"
+"Paddle Plant"
+"Wide-leafed aquatic vegetation."
+
+TAG "Agent Help 2 3 24212"
+"Paddle Plant Seed"
+"Seed material for the paddle plant."
+
+TAG "Agent Help 2 1 24208"
+"Falling Leaves Spawner"
+"Stirs the air above the forest and releases drifting leaves from time to time."
+
+TAG "Agent Help 2 6 24200"
+"Falling Leaf"
+"A leaf tumbling down from the canopy. It vanishes when it comes to rest."
+
+TAG "Agent Help 2 19 24204"
+"Canopy Rain Driver"
+"The hidden engine of weather in this room. It herds clouds and summons rain over the forest."
+
+TAG "Agent Help 2 19 24207"
+"Rain Cloud"
+"A cloud that trails rain across The Canopy."
+
+TAG "Agent Help 2 19 24208"
+"Rain Splash"
+"A splash where rain meets leaf or water."
+
+TAG "Agent Help 2 19 24209"
+"Rain Splash"
+"A variant splash particle from the canopy storm."
+
+TAG "Agent Help 2 19 24206"
+"Waterfall Bubble"
+"A bubble rising through the waterfall mist. It struggles in dry air and thrives over fresh or salt water."
+
+TAG "Agent Help 2 21 24207"
+"Canopy Ball"
+"A bouncy ball left out for norns, ettins, and grendels to chase and punch."
+
+TAG "Agent Help 2 21 24208"
+"Punching Bag"
+"A sturdy bag for creatures to work off energy. Hangs in two corners of the canopy."
+
+TAG "Agent Help 2 21 24209"
+"Spinning Top"
+"A wooden top that spins when pushed. Several are scattered through the metaroom."
+
+TAG "Agent Help 2 21 24210"
+"Race Car"
+"A wind-up race car that skitters along when activated."
+
+TAG "Agent Help 2 21 24211"
+"Musical Gourds"
+"Gourds that chime and rattle when played with. One set sits in the desert nook, another in the high canopy."
+
+TAG "Agent Help 2 21 24213"
+"Bubble Machine"
+"A bubble machine wired with input and output sensors. Push it and it pours out a stream of bubbles."
+
+TAG "Agent Help 2 21 24212"
+"Bubble"
+"A bubble from the bubble machine. Pop!"
+
+TAG "Agent Help 2 15 24206"
+"Freshwater Sunfish"
+"A small pond sunfish of The Canopy. It swims between water rooms, eats detritus and small agents, breeds when mature, and dies if beached too long."
+
+TAG "Agent Help 2 18 24206"
+"Freshwater Sunfish Egg"
+"Laid by an adult sunfish. Hatches into a fry when conditions are right and the pond is not overcrowded."
+
+TAG "Agent Help 2 10 24207"
+"Freshwater Sunfish Detritus"
+"The remains of a dead sunfish. Creatures may eat it for a little nourishment."
+
+TAG "Agent Help 2 24 24206"
+"Freshwater Sunfish Egg Vendor"
+"Dispenses sunfish eggs into the pond for testing or stocking."
+
+TAG "Agent Help 2 15 24207"
+"Channel Catfish"
+"A whiskered bottom-feeder of The Canopy pond. It swims between water rooms, eats detritus and small agents, breeds when mature, and dies if beached too long."
+
+TAG "Agent Help 2 18 24207"
+"Channel Catfish Egg"
+"Laid by an adult catfish. Hatches into a fry when conditions are right and the pond is not overcrowded."
+
+TAG "Agent Help 2 10 24208"
+"Channel Catfish Detritus"
+"The remains of a dead catfish. Creatures may eat it for a little nourishment."

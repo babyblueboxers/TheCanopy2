@@ -1,0 +1,532 @@
+* ============================================================================
+* moe_canopy2_foxglove
+*   Seed classifier:  2 3 24207
+*   Adult classifier: 2 7 24207
+*
+* OBJECT VARIABLE MAP (shared convention for all moe canopy plants)
+* ----------------------------------------------------------------------------
+* ov11      Adult only: 0 = vegetative, 1 = seeding phase started
+* ov30      Adult: last vegetative pose (watering-safe pulse gate)
+* ov31      Adult: first seeding pose
+* ov32      Adult: final pose before death
+* ov73      Seed: timer-9 ticks while grounded (~adult lifecycle); 0 -> die
+* ECOLOGY WINDOWS (min/max pairs — set in seed constructor 10 only; inheritEcology on sprout)
+*   ov80 / ov86   light       min / max   (prop 1)  foxglove 0.4 / 0.95
+*   ov81 / ov87   heat        min / max   (prop 2)  foxglove 0.15 / 0.75
+*   ov82 / ov88   water       min / max   (prop 3)  foxglove 0.1 / 0.9
+*   ov83 / ov89   nutrients   min / max   (prop 4)  foxglove 0.15 / 0.85
+*   ov84        Allowed room types (rtyp bitmask) — see ROOM BITMASK VALUES below. ov85 free.
+*               Foxglove: Normal + Boggy + Drained soil (5,6,7) = 32+64+128 = 224.
+*
+* ROOM BITMASK VALUES (rtyp N -> bit 2^N; OR into ov84 in constructor 10)
+*   0 - Atmosphere           - 1
+*   1 - Wooden Walkway       - 2
+*   2 - Concrete Walkway     - 4
+*   3 - Indoor Corridor      - 8
+*   4 - Outdoor Concrete     - 16
+*   5 - Normal soil          - 32
+*   6 - Boggy Soil           - 64
+*   7 - Drained Soil         - 128
+*   8 - Fresh Water          - 256
+*   9 - Salt Water           - 512
+*  10 - Ettin Home           - 1024
+*   On sprout, inheritEcology copies seed mv80-mv89 -> adult ov80-ov89 (OWNR/TARG).
+*   Adult constructor does not set ecology OVs — only sprouted plants get them from the seed.
+*
+* SCRIPTS (message numbers — see CAOS message table)
+*   Seed 2 3:  1,2,3 = push/pull/hit -> stim 84 (creature only)
+*              5 = periodic anim + mira from velx (tumble while moving)
+*              6 = collision: pose 0, snde "dr64" on hard vertical bump (_p2_)
+*              9 = grounded ecology / sprout timer
+*             12 = eaten
+*   Adult 2 7: 1,2,8 = push/pull/hit -> stim 84 (8 = hit on genus 7 convention)
+*              9 = grow / seed / die timer
+*           1000 = watering-can pulse -> mesg writ ownr 9 when vegetative
+*   Adult has no script 6 (stationary; not dropped like props).
+*
+* WATERING CAN -> adult 2 7 only: mesg writ targ 1000
+*   Script 1000 runs timer 9 once if pose le ov30, ov11 eq 0, not carried, not falling.
+*   All "may we grow?" logic lives in script 9; the can only sends one message.
+*   Do not mesg writ 9 or 1000 on seeds. Do not pulse during seeding (pose gt ov30).
+*
+* SEED sprout: scoreEnvironment fills va00 pass count — need 6 (rtyp + 4 props + not crowded).
+*   Wrong rtyp (incl. water 8/9): no instant kill — fails sprout scoring; ov73 counts down to die.
+* ADULT growth: scoreEnvironment scores va10 favorability for applyFavorabilityTick (not va00).
+* DUPLICATE SUBRS: rtypToBit, roomTypeAllowed, scoreEnvironment, scoreOnePropBand — keep seed
+*   and adult script 9 copies in sync when editing ecology logic.
+* ============================================================================
+
+*inst
+*new: simp 2 3 24207 "moe_canopy2_foxglove" 6 81 rand 200 2000
+*mvsf mopx mopy
+*anim [ 0 1 2 3 4 5 255]
+reps 40
+    setv va00 rand 0 8
+    setv va01 9
+    mulv va01 va00
+    new: simp 2 7 24207 "moe_canopy2_foxglove" 9 va01 rand 200 2000
+    mvsf rand 14150 16100 49150
+    pose rand 0 4
+repe
+
+* ----------------------------------------------------------------------------
+* SEED constructor
+* ----------------------------------------------------------------------------
+scrp 2 3 24207 10
+    inst
+    attr 195
+    bhvr 48
+    elas 20
+    fric 100
+    accg .5
+    aero .5
+    rnge 200
+    frat 2
+    core 0 10 0 wdth
+* Ground time ~one adult lifecycle (9 timer 9 ticks: poses 0-4, seed, 5-8, die)
+    setv ov73 rand 9 12
+* Ecology windows (constructor only; scoreEnvironment reads OVs) — room prop bands for sprout:
+*   ov80/ov86 light min/max (prop 1)  ov81/ov87 heat (2)  ov82/ov88 water (3)  ov83/ov89 nutrients (4)
+    setv ov80 0.4
+    setv ov86 0.95
+    setv ov81 0.15
+    setv ov87 0.75
+    setv ov82 0.1
+    setv ov88 0.9
+    setv ov83 0.15
+    setv ov89 0.85
+* Normal soil + Boggy Soil + Drained Soil (5+6+7 -> 224)
+    setv ov84 224
+    tick rand 2000 8000
+    emit 7 0.02
+endm
+
+scrp 2 3 24207 1
+    inst
+    doif from ne null
+        stim writ from 84 1
+    endi
+endm
+
+scrp 2 3 24207 2
+    inst
+    doif from ne null
+        stim writ from 84 1
+    endi
+endm
+
+scrp 2 3 24207 3
+    inst
+    doif from ne null
+        stim writ from 84 1
+    endi
+endm
+
+scrp 2 3 24207 5
+    anim [ 0 1 2 3 4 5 255]
+    doif velx gt 0
+        mira 0
+    else
+        mira 1
+    endi
+endm
+
+scrp 2 3 24207 6
+    inst
+    pose 0
+    setv va00 _p2_
+    absv va00
+    doif va00 gt 2
+        snde "dr64"
+    endi
+endm
+
+* ----------------------------------------------------------------------------
+* SEED timer 9 — sprout pass/fail, fixed tick (constructor), population caps
+* ----------------------------------------------------------------------------
+scrp 2 3 24207 9
+    inst
+* if being carried or falling, do not simulate (avoids sprout in hand)
+    doif fall eq 1 or carr ne null
+        stop
+    endi
+
+* sprout pass count in va00 (no favorability tick — seed has no pose growth to pace)
+    gsub scoreEnvironment
+
+* population pressure (may add va00 pass point or penalize ov73 — no instant kill)
+    gsub countPlants
+    gsub countSeeds
+
+* need 6 points: rtyp + light + heat + water + nutrients + nearby adults le cap
+    doif va00 ge 6 and obst _up_ gt 100
+        gsub grow
+        stop
+    endi
+
+    subv ov73 1
+    doif ov73 le 0
+        gsub die
+        stop
+    endi
+
+* Count nearby seeds; overcrowding -> extra ov73 penalty (die only when ov73 hits 0)
+    subr countSeeds
+        setv va01 0
+        setv va02 5
+        esee 2 3 24207
+            addv va01 1
+        next
+        doif va01 gt va02
+            subv ov73 1
+        endi
+    retn
+
+* Count nearby adults; overcrowding -> ov73 penalty; else +1 sprout pass point
+    subr countPlants
+        setv va01 0
+        setv va02 5
+        esee 2 7 24207
+            addv va01 1
+        next
+        doif va01 gt va02
+            subv ov73 1
+        elif va01 le va02
+            addv va00 1
+        endi
+    retn
+
+* Read room CA vs ov80-ov89; ov84 = allowed rtyp bitmask (see rtypToBit / roomTypeAllowed)
+* va00 = pass count (need 6 to sprout)
+    subr scoreEnvironment
+        setv va00 0
+        gsub roomTypeAllowed
+* reset va00 after rtypToBit used va00 for the bit mask
+        setv va00 0
+        doif va02 ne 0
+            addv va00 1
+        endi
+        setv va05 1
+        setv va12 ov80
+        setv va13 ov86
+        gsub scoreOnePropBand
+        setv va05 2
+        setv va12 ov81
+        setv va13 ov87
+        gsub scoreOnePropBand
+        setv va05 3
+        setv va12 ov82
+        setv va13 ov88
+        gsub scoreOnePropBand
+        setv va05 4
+        setv va12 ov83
+        setv va13 ov89
+        gsub scoreOnePropBand
+    retn
+
+* One ecology prop band: va05=prop# va12=min va13=max; +1 va00 if in band
+    subr scoreOnePropBand
+        setv va11 prop room ownr va05
+        doif va11 ge va12
+            doif va11 le va13
+                addv va00 1
+            endi
+        endi
+    retn
+
+* va01 = rtyp in; va00 = 2^rtyp out (1,2,4,8... via reps — no power opcode in CAOS)
+    subr rtypToBit
+        setv va00 0
+        doif va01 ge 0
+            doif va01 le 15
+                setv va00 1
+                reps va01
+                    mulv va00 2
+                repe
+            endi
+        endi
+    retn
+
+* ov84 = allowed rtyp mask; va02 = 1 if current room rtyp is allowed, else 0
+    subr roomTypeAllowed
+        setv va01 rtyp room ownr
+        gsub rtypToBit
+        setv va02 va00
+        andv va02 ov84
+    retn
+
+* Copy seed ecology onto sprout: OWNR = seed (mvxx), TARG = new adult (ovxx) after new:
+    subr inheritEcology
+        setv ov80 mv80
+        setv ov81 mv81
+        setv ov82 mv82
+        setv ov83 mv83
+        setv ov84 mv84
+        setv ov86 mv86
+        setv ov87 mv87
+        setv ov88 mv88
+        setv ov89 mv89
+    retn
+
+* Sprout adult: center on seed posx; top-left Y = posy - adult hght; pose 0 for sizing, then variant
+    subr grow
+        setv va00 posx
+        setv va01 posy
+        setv va06 rand 0 8
+        mulv va06 9
+        new: simp 2 7 24207 "moe_canopy2_foxglove" 9 va06 rand 200 2000
+* TARG = sprout; OWNR = seed — mvto top-left: posx - wdth/2, posy - hght
+        setv va04 wdth
+        divv va04 2
+        subv va00 va04
+        subv va01 hght
+        doif tmvt va00 va01 eq 1
+            mvto va00 va01
+            gsub inheritEcology
+            targ ownr
+            gsub die
+        else
+            kill targ
+            targ ownr
+            gsub die
+        endi
+    retn
+
+    subr die
+        doif room ownr ne -1
+            altr room ownr 3 0.002
+            altr room ownr 4 0.002
+        endi
+        kill ownr
+    retn
+
+endm
+
+scrp 2 3 24207 12
+    inst
+    stim writ from 77 1
+    snde "chwp"
+    doif room ownr ne -1
+        altr room ownr 3 0.001
+        altr room ownr 4 0.001
+    endi
+    kill ownr
+endm
+
+* ----------------------------------------------------------------------------
+* ADULT constructor
+* ----------------------------------------------------------------------------
+scrp 2 7 24207 10
+    inst
+    attr 192
+    bhvr 11
+    elas 0
+    fric 100
+    accg 2
+    mira rand 0 1
+    tick rand 2000 8000
+    frat 7
+* Growth stage gates
+    setv ov30 4
+    setv ov31 5
+    setv ov32 8
+    setv ov11 0
+* ov80-ov89, ov84: set on seed only; inheritEcology copies them when this plant sprouts
+endm
+
+scrp 2 7 24207 1
+    inst
+    doif from ne null
+        stim writ from 84 1
+    endi
+endm
+
+scrp 2 7 24207 2
+    inst
+    doif from ne null
+        stim writ from 84 1
+    endi
+endm
+
+scrp 2 7 24207 8
+    inst
+    doif from ne null
+        stim writ from 84 1
+    endi
+endm
+
+* ----------------------------------------------------------------------------
+* ADULT timer 9 — vegetative growth, seeding, favorability tick
+* ----------------------------------------------------------------------------
+scrp 2 7 24207 9
+    inst
+    doif fall eq 1 or carr ne null
+        stop
+    endi
+
+* --- Vegetative phase: pose 0 .. ov30 (foxglove: 0-4) ---
+* one pose step per timer tick (including extra mesg writ 9 from watering can)
+    doif pose le ov30
+        gsub scoreEnvironment
+        gsub applyFavorabilityTick
+        setv va00 pose
+        addv va00 1
+        pose va00
+        stop
+    endi
+
+* --- Seeding phase: first enter at pose ov31 ---
+    doif pose ge ov31 and ov11 eq 0
+        setv ov11 1
+        gsub seed
+    elif ov11 gt 0 and pose lt ov32
+        setv va00 pose
+        addv va00 1
+        pose va00
+    elif pose eq ov32 and ov11 eq 1
+        gsub die
+    endi
+
+* Favorability -> next tick delay (vegetative only)
+    subr applyFavorabilityTick
+        setv va12 8000
+        setv va13 va10
+        mulv va13 40
+        subv va12 va13
+        doif va12 lt 1500
+            setv va12 1500
+        endi
+        tick va12
+    retn
+
+* Same band logic as seed — must stay in sync; uses this agent's ov80-ov89 only
+* Wrong rtyp: va10 stays 0; one retn at end (no retn inside doif — see doc 10 / categorical RETN)
+    subr scoreEnvironment
+        setv va10 0
+        gsub roomTypeAllowed
+        doif va02 ne 0
+            setv va05 1
+            setv va12 ov80
+            setv va13 ov86
+            gsub scoreOnePropBand
+            setv va05 2
+            setv va12 ov81
+            setv va13 ov87
+            gsub scoreOnePropBand
+            setv va05 3
+            setv va12 ov82
+            setv va13 ov88
+            gsub scoreOnePropBand
+            setv va05 4
+            setv va12 ov83
+            setv va13 ov89
+            gsub scoreOnePropBand
+            divv va10 4
+            mulv va10 100
+        endi
+    retn
+
+* One ecology prop band: va05=prop# va12=min va13=max; comfort margin -> va10 only
+    subr scoreOnePropBand
+        setv va11 prop room ownr va05
+        doif va11 ge va12
+            doif va11 le va13
+                setv va14 va11
+                subv va14 va12
+                setv va15 va13
+                subv va15 va11
+                doif va14 lt va15
+                    addv va10 va14
+                else
+                    addv va10 va15
+                endi
+            endi
+        endi
+    retn
+
+* Same as seed script 9 — va01=rtyp, va00=2^rtyp via reps
+    subr rtypToBit
+        setv va00 0
+        doif va01 ge 0
+            doif va01 le 15
+                setv va00 1
+                reps va01
+                    mulv va00 2
+                repe
+            endi
+        endi
+    retn
+
+    subr roomTypeAllowed
+        setv va01 rtyp room ownr
+        gsub rtypToBit
+        setv va02 va00
+        andv va02 ov84
+    retn
+
+    subr seed
+        reps rand 1 3
+            setv va00 posx
+            setv va01 posy
+            new: simp 2 3 24207 "moe_canopy2_foxglove" 6 81 rand 200 2000
+            doif tmvt va00 va01 eq 1
+                mvto va00 va01
+            else
+                mvsf va00 va01
+            endi
+            anim [ 0 1 2 3 4 5 255]
+            addv velx rand -10 10
+            subv vely rand 5 10
+        repe
+        targ ownr
+    retn
+
+    subr die
+        doif room ownr ne -1
+            altr room ownr 3 0.003
+            altr room ownr 4 0.003
+        endi
+        kill ownr
+    retn
+
+endm
+
+* ----------------------------------------------------------------------------
+* ADULT — watering can: mesg writ targ 1000 -> one timer 9 tick if growth allowed
+* ----------------------------------------------------------------------------
+scrp 2 7 24207 1000
+    inst
+    doif pose le ov30
+        doif ov11 eq 0
+            doif carr eq null
+                doif fall eq 0
+                    mesg writ ownr 9
+                endi
+            endi
+        endi
+    endi
+    slow
+endm
+
+rscr
+enum 2 3 24207
+    kill targ
+next
+enum 2 7 24207
+    kill targ
+next
+
+scrx 2 3 24207 10
+scrx 2 3 24207 1
+scrx 2 3 24207 2
+scrx 2 3 24207 3
+scrx 2 3 24207 5
+scrx 2 3 24207 6
+scrx 2 3 24207 9
+scrx 2 3 24207 12
+scrx 2 7 24207 10
+scrx 2 7 24207 1
+scrx 2 7 24207 2
+scrx 2 7 24207 8
+scrx 2 7 24207 9
+scrx 2 7 24207 1000

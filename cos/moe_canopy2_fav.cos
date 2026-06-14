@@ -1,0 +1,22 @@
+new: simp 1 3 24205 "moe_canopy2_fav" 1 0 1
+attr 272
+mvto 16350 49000
+tick 10
+
+cmrp 16142 47990 0
+
+rscr
+enum 1 3 24205
+	kill targ
+next
+
+enum 1 4 24205
+	kill targ
+next
+
+scrx 1 3 24205 10
+scrx 1 3 24205 9
+scrx 1 4 24205 10
+scrx 1 4 24205 9
+
+subv game "ds_favourites" 1

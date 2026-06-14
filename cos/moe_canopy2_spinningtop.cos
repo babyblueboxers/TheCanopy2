@@ -1,0 +1,112 @@
+* 2 21 24209 - Top
+
+* To left of norn burrow
+
+new: simp 2 21 24209 "moe_canopy2_spintop" 26 0 rand 1000 5000
+mvsf 17420 49220
+
+new: simp 2 21 24209 "moe_canopy2_spintop" 26 0 rand 1000 5000
+mvsf 15880 48050
+
+new: simp 2 21 24209 "moe_canopy2_spintop" 26 0 rand 1000 5000
+mvsf 15000 49635
+
+scrp 2 21 24209 10
+	attr 199
+	bhvr 43
+	elas 50
+	accg 2
+	aero 5
+	fric 50
+	perm 51
+	frat 2
+	pose 25
+endm
+
+
+
+* Activate 1
+
+scrp 2 21 24209 1
+	lock
+	stim writ from 97 1
+	snde "top1"
+	anim [0 1 2 3 4 5 6 7 8 9 255]
+	wait 20
+	reps 35
+		addv velx rand -6 6
+		addv vely -2
+		wait 3
+	repe
+	anim [10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25]
+	unlk
+endm
+
+
+
+* Activate 2
+
+scrp 2 21 24209 2
+	lock
+	stim writ from 97 1
+	snde "top1"
+	anim [0 1 2 3 4 5 6 7 8 9 255]
+	wait 20
+	reps 35
+		addv velx rand -6 6
+		addv vely -2
+		wait 3
+	repe
+	anim [10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25]
+	unlk
+endm
+
+
+
+* Hit
+
+scrp 2 21 24209 3
+	lock
+	doif carr eq null
+		stim writ from 97 1
+		snde "top1"
+		anim [4 5 6 7 8 9 10 255]
+		wait 20
+		reps 35
+			addv velx rand -6 6
+			addv vely -2
+			wait 3
+		repe
+		anim [10 11 12 13 14 15 16 11 12 13 14 15 16]
+	endi
+	unlk
+endm
+
+
+* Pickup
+
+scrp 2 21 24209 4
+	pose 0
+endm
+
+scrp 2 21 24209 5
+	pose 25
+endm
+
+scrp 2 21 24209 6
+	doif _p2_ gt 5
+		snde "clak"
+	endi
+endm
+
+
+rscr
+enum 2 21 24209
+	kill targ
+next
+scrx 2 21 24209 1
+scrx 2 21 24209 5
+scrx 2 21 24209 2
+scrx 2 21 24209 3
+scrx 2 21 24209 4
+scrx 2 21 24209 10

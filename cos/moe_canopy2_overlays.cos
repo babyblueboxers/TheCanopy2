@@ -1,0 +1,90 @@
+**Canopy Overlays
+
+*Crystal Cave Left
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 0 8500
+mvto 13962 49606
+
+*CaveRoof
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 11 8500
+mvto 13962 49447
+
+*WaterfallCave
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 12 8500
+mvto 16573 49020
+
+
+*RosePole
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 13 8500
+mvto 14437 49020
+*RosePole 2
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 14 8500
+mvto 14437 48943
+
+
+*Upper Middle Bridge
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 1 8500
+mvto 15089 48129
+*Upper Middle Bridge Top Ropes
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 2 8500
+mvto 15000 47839
+*LowerRopeBridge
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 7 8500
+mvto 16182 49210
+*LowerRopeBridge
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 16 8500
+mvto 14437 48770
+*LowerRopeBridge Lanterns
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 15 8500
+mvto 15221 48943
+*Middle Bridge Right
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 17 8500
+mvto 15089 48332
+*Middle Bridge Left
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 18 8500
+mvto 14710 48436
+*Middle Bridge Far Left
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 19 8500
+mvto 14309 48332
+
+
+*Pond Central Rock
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 8 8500
+mvto 17182 49407
+*Pond Rock Left
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 9 8500
+mvto 16628 49407
+*Pond Rock Right
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 10 8500
+mvto 17850 49407
+
+
+*Leaves_ForestFloor
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 3 8500
+mvto 14680 48943
+*Leaves_MiddleCanopy
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 4 8500
+mvto 14680 48612
+*Leaves_MiddleCanopyRight
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 5 8500
+mvto 16162 48677
+*Leaves_UpperLeftCanopy
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 6 8500
+mvto 14710 48129
+
+
+*RosePole
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 13 8500
+mvto 14437 49020
+*RosePole 2
+new: simp 1 1 24203 "moe_canopy2_overlays" 0 14 8500
+mvto 14437 48943
+
+scrp 1 1 24203 10
+	bhvr 0
+	CLAC -1
+endm
+
+rscr
+enum 1 1 24203
+	kill targ
+next
