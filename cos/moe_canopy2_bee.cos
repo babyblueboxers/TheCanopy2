@@ -52,9 +52,9 @@ inst
 new: simp 2 15 24202 "moe_canopy2_bluebottle" 5 3 rand 2000 5000
 setv ov99 1
 doif tmvt mopx mopy eq 1
-    mvto mopx mopy
+    mvto 15870 49025
 else
-    mvsf mopx mopy
+    mvsf 15870 49025
 endi
 
 * --- Bee constructor (message 10) --------------------------------------------
