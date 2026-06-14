@@ -44,12 +44,14 @@
 
 * --- Install (uncomment inst when injecting) ----------------------------------
 inst
+reps rand 5 7
 new: simp 2 13 24204 "moe_canopy2_leafbug" 74 2 rand 2000 5000
 doif tmvt mopx mopy eq 1
-    mvto mopx mopy
+    mvto rand 14350 15780 49050
 else
-    mvsf mopx mopy
+    mvsf rand 14350 15780 49050
 endi
+repe
 
 * --- Constructor (message 10) -----------------------------------------------
 scrp 2 13 24204 10

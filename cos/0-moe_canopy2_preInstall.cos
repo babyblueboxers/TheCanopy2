@@ -1,0 +1,4 @@
+*fix map size, if needed
+doif mapw lt 50000 or maph lt 50000
+	mapd 50000 50000
+endi
