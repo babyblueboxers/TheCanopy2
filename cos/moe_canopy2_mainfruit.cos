@@ -1,0 +1,161 @@
+* Nutrients
+*RATE 8 4 1 0.001 0.9
+*RATE 9 4 1 0.001 0.9
+** Heat
+*RATE 8 2 1 0.001 0.9
+*RATE 9 2 1 0.001 0.9
+
+
+new: simp 1 1 24206 "blnk" 1 0 0
+mvto 2200 45580
+tick 500
+
+scrp 1 1 24206 9
+	setv va00 totl 2 7 24206
+	setv va01 totl 2 8 24206
+	doif va00 < 20 and va01 < 20
+		setv va00 rand 0 3
+		setv va01 10
+		mulv va01 va00
+*doif rand 0 1 eq 0
+		new: simp 2 7 24206 "moe_canopy2_mainflower" 10 va01 200
+		mvsf rand 14870 16110 rand 48200 48770
+*else
+*new: simp 2 7 24206 "moe_canopy2_mainflower" 10 va01 200
+*mvsf rand 2560 3880 rand 45930 46120
+*endi*
+	endi
+endm
+
+scrp 2 7 24206 10
+	mira rand 0 1
+	tick rand 1000 3000
+endm
+
+scrp 2 7 24206 9
+	doif pose < 9
+		setv va00 pose
+		addv va00 1
+		pose va00
+	elif pose eq 9
+		setv va00 posx
+		setv va01 posy
+		new: simp 2 8 24206 "moe_canopy2_mainflower" 3 40 rand 200 2000
+		setv va02 wdth
+		divv va02 2
+		subv va01 15
+		subv va00 va02
+		mvsf va00 va01
+		targ ownr
+		gsub die
+	endi
+
+	subr die
+		kill ownr
+	retn
+endm
+
+scrp 2 8 24206 10
+	inst
+	attr 195
+	bhvr 48
+	elas 10
+	fric 100
+	accg 2
+	perm rand 0 100
+	mira rand 0 1
+	tick rand 1000 3000
+	emit 6 0.02
+	setv va00 hght
+	subv va00 10
+	setv va01 wdth
+	subv va01 20
+	core 30 va00 20 va01
+
+endm
+
+scrp 2 8 24206 9
+	addv ov01 1
+
+	doif ov01 ge 10
+		setv va00 posl
+		setv va01 post
+		new: simp 2 10 24206 "moe_canopy2_mainflower" 1 43 rand 200 2000
+		mvsf va00 va01
+		targ ownr
+		gsub die
+	endi
+
+	subr die
+		kill ownr
+	retn
+endm
+
+scrp 2 8 24206 6
+	snde "dr10"
+endm
+
+scrp 2 8 24206 12
+	inst
+	stim writ from 78 1
+	snde "chwp"
+	doif pose lt 2
+		setv va00 pose
+		addv va00 1
+		pose va00
+	elif pose eq 2
+		kill ownr
+	endi
+endm
+
+scrp 2 10 24206 10
+	inst
+	attr 195
+	bhvr 48
+	elas 10
+	fric 100
+	accg 2
+	perm rand 0 100
+	mira rand 0 1
+	tick rand 1000 3000
+endm
+
+* detritus doesn't last long
+scrp 2 10 24206 9
+	addv ov01 1
+	doif ov01 ge 10
+		kill ownr
+	endi
+endm
+
+scrp 2 10 24206 12
+	inst
+	stim writ from 81 1
+	snde "chwp"
+	kill ownr
+endm
+
+
+rscr
+enum 1 1 24206
+    kill targ
+next
+enum 2 7 24206
+    kill targ
+next
+enum 2 8 24206
+    kill targ
+next
+enum 2 10 24206
+    kill targ
+next
+scrx 1 1 24206 9
+scrx 2 7 24206 9
+scrx 2 7 24206 10
+scrx 2 8 24206 6
+scrx 2 8 24206 9
+scrx 2 8 24206 10
+scrx 2 8 24206 12
+scrx 2 10 24206 9
+scrx 2 10 24206 10
+scrx 2 10 24206 12

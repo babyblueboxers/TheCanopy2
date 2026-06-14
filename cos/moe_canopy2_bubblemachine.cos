@@ -1,0 +1,168 @@
+new: simp 2 21 24213 "moe_canopy2_bubblemachine" 10 0 rand 2000 5000
+mvsf 15888 48090
+
+scrp 2 21 24213 10
+	inst
+	attr 199
+	elas 10
+	accg 5
+	aero 3
+	perm 51
+	bhvr 43
+	prt: inew 0 "contact sensor input" " " 13 52 0
+	prt: onew 0 "contact sensor output" " " 71 52
+endm
+
+scrp 2 21 24213 1
+	doif from ne null
+		stim writ from 97 1
+	endi
+	prt: send 0 255
+	anim [1 2 3 4 5 6 7 8 9 0 255]
+	sndl "m_b6"
+	reps 25
+		inst
+		setv va00 posx
+		setv va01 post
+		new: simp 2 21 24212 "moe_canopy2_bubblemachine" 10 11 rand 2000 5000
+		pose rand 0 9
+		setv va02 wdth
+		divv va02 2
+		subv va00 va02
+		mvsf va00 va01
+		setv va03 rand -1000 1000
+		divv va03 100.00
+		velo va03 rand -2 -10
+		setv va00 rtyp room ownr
+		doif va00 eq 8 or va00 eq 9
+			setv vely -20
+		endi
+		targ ownr
+		wait 5
+		slow
+	repe
+	stpc
+	pose 0
+endm
+
+scrp 2 21 24213 2
+	doif from ne null
+		stim writ from 97 1
+	endi
+	mesg writ ownr 0
+endm
+
+scrp 2 21 24213 3
+	doif from ne null
+		stim writ from 97 1
+	endi
+	mesg writ ownr 0
+endm
+
+scrp 2 21 24212 10
+	inst
+	attr 199
+	accg .025
+	aero 2
+	tick 60
+	bhvr 43
+	perm rand 0 100
+	slow
+endm
+
+scrp 2 21 24212 9
+	addv ov01 1
+	addv velx rand -2 2
+	setv va00 rand 0 10
+
+	doif va00 gt 8
+		addv vely rand -2 0
+	endi
+*bubbles only last about 2 minutes max
+	doif ov01 ge 10
+		mesg writ ownr 6
+	endi
+
+	setv va00 rtyp room ownr
+	doif va00 eq 8 or va00 eq 9
+		setv vely -10
+	endi
+
+endm
+
+scrp 2 21 24212 1
+	doif from ne null
+		stim writ from 97 1
+	endi
+	mesg writ ownr 6
+endm
+
+scrp 2 21 24212 2
+	doif from ne null
+		stim writ from 97 1
+	endi
+	mesg writ ownr 0
+endm
+
+scrp 2 21 24212 3
+	doif from ne null
+		stim writ from 97 1
+	endi
+	mesg writ ownr 0
+endm
+
+scrp 2 21 24212 6
+	inst
+	snde "m_b7"
+	reps rand 3 7
+		setv va00 posx
+		setv va01 posy
+		new: simp 1 1 24212 "moe_canopy2_bubblemachine" 1 21 rand 2000 5000
+		mvsf va00 va01
+		setv velx rand -2 2
+	repe
+	slow
+	kill ownr
+endm
+
+scrp 1 1 24212 10
+	inst
+	lock
+	accg 1
+	aero 5
+	elas 0
+	bhvr 0
+	attr 208
+	wait rand 5 20
+	kill ownr
+	unlk
+endm
+
+scrp 1 1 24212 6
+	lock
+	kill ownr
+	unlk
+endm
+
+rscr
+enum 1 1 24212
+	kill targ
+next
+enum 2 21 24212
+	kill targ
+next
+enum 2 21 24213
+	kill targ
+next
+scrx 1 1 24212 6
+scrx 1 1 24212 10
+scrx 2 21 24212 1
+scrx 2 21 24212 2
+scrx 2 21 24212 3
+scrx 2 21 24212 6
+scrx 2 21 24212 9
+scrx 2 21 24212 10
+scrx 2 21 24213 1
+scrx 2 21 24213 2
+scrx 2 21 24213 3
+scrx 2 21 24213 10

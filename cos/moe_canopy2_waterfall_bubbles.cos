@@ -1,0 +1,50 @@
+reps 100
+	new: simp 2 19 24206 "moe_canopy2_bubbles" 5 0 rand 200 2000
+
+	mvsf rand 16685 17176 rand 49396 49420
+repe
+
+scrp 2 19 24206 10
+	tick 1
+	pose rand 0 4
+	attr 128
+	setv va00 101
+	divv va00 100
+	setv va01 1301
+	divv va01 1000
+	setv vely rand 1.01 13.01
+	setv velx rand -1 1
+	accg -2
+endm
+
+
+scrp 2 19 24206 9
+	inst
+	doif rtyp room ownr ne 9 and rtyp room ownr ne 8
+		setv vely rand 1.01 13.01
+* have a few outliers every now and again
+		doif rand 0 25 eq 1
+			setv vely 20
+		endi
+		setv va01 rand 0 10
+		doif va01 lt 9
+			mvsf rand 16685 17175 rand 49396 49420
+		else
+			mvsf rand 17410 17480 rand 49396 49420
+		endi
+		pose 0
+	endi
+	setv va00 0
+	doif pose lt 4
+		setv va00 pose
+		addv va00 1
+		pose va00
+	endi
+endm
+
+
+
+rscr
+enum 2 19 24206
+	kill targ
+next

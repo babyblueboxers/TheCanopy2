@@ -1,0 +1,703 @@
+inst
+reps rand 1 1
+    new: simp 2 15 24207 "moe_canopy2_catfish" 140 0 rand 1000 3000
+    mvsf rand 16740 17650 49600
+    setv ov01 1
+    base 70
+repe
+
+* moe_canopy2_catfish3 -- catfish2 + hunger/forage (classifier 2 15 24207)
+* OV map (additions vs catfish2):
+*   ov00  food target agent (repurposed from unused slot)
+*   ov14  hunger counter (capped at ov15)
+*   ov15  starve tick limit (4 min, from gettimes)
+*   ov16  forage tick threshold (3 min, from gettimes)
+* findfood: seta mv00 targ during STAR (TARG=food); ov00 after targ ownr (alias, no copy)
+
+scrp 2 15 24207 10
+    inst
+    frat 4
+    attr 195
+    elas 25
+    fric 50
+    aero 1
+    accg 0
+    perm 51
+    tick rand 25 35
+    rnge 500
+    bhvr 59
+*Food target agent (null = wander)
+    seta ov00 null
+*Adulthood = 1, Child = 0
+    setv ov01 0
+*Lifespan Counter and Max Age, Respectively
+    setv ov02 0
+    setv ov03 15
+*Drown Timer and limit
+    setv ov04 0
+    setv ov05 1
+*Room ID To Swim Towards
+    setv ov06 -1
+*How many tries we've attempted to pick a room
+    setv ov07 0
+*Swim Destinations X and Y respectively
+    setv ov08 0
+    setv ov09 0
+*Swim attempt limit
+    setv ov10 0
+*Swim Velocity
+    setv ov11 3
+*Have I bred yet?
+    setv ov12 0
+*Max Age, 20 minutes
+    setv ov13 20
+*Hunger counter and limits (minutes until gettimes converts)
+    setv ov14 0
+    setv ov15 4
+    setv ov16 3
+*Target Room
+    setv name "room" -1
+
+
+*Initial Animation Sequence
+    anim [0 1 2 3 4 5 6 7 8 9 10 11 12 11 10 9 255]
+
+*Converts times to minute values based on the tick
+    gsub gettimes
+
+    subr gettimes
+        mulv ov03 1200
+        divv ov03 tick
+        mulv ov05 1200
+        divv ov05 tick
+        mulv ov13 1200
+        divv ov13 tick
+        mulv ov15 1200
+        divv ov15 tick
+        mulv ov16 1200
+        divv ov16 tick
+    retn
+endm
+
+
+scrp 2 15 24207 1
+    doif crea from eq 1
+        stim writ from 86 1
+    endi
+endm
+
+
+scrp 2 15 24207 2
+    doif crea from eq 1
+        stim writ from 86 1
+    endi
+endm
+
+
+scrp 2 15 24207 3
+    doif crea from eq 1
+        stim writ from 87 1
+    endi
+endm
+
+scrp 2 15 24207 9
+    doif ov14 lt ov15
+        addv ov14 1
+    endi
+    doif ov14 ge ov15
+        gsub die
+        stop
+    endi
+    doif carr eq pntr
+        stop
+    endi
+*If in water, swim, else, flop
+    doif rtyp room ownr ne 8 and rtyp room ownr ne 9
+        gsub flop
+        stop
+    else
+*Reset drown timer and gravity
+        setv ov04 0
+        accg 0
+*We are currently in our flopping animation, probably were on land. Let's fix that.
+        doif pose ge 43 and pose le 69
+            doif pose lt 57
+                gsub swimLeft
+            else
+                gsub swimRight
+            endi
+        endi
+*----
+        doif ov14 ge ov16
+            gsub findfood
+        endi
+        doif ov00 eq null
+            gsub swim
+        endi
+        gsub tryBubble
+    endi
+*Tick up your adult counter
+    addv ov02 1
+*If you're an adult
+    doif ov01 eq 1
+*And you have not bred, breed
+        doif ov12 eq 0
+            gsub breed
+            setv ov12 1
+        endi
+
+*Die of old age
+
+        doif ov02 gt ov13
+            gsub die
+        endi
+
+
+*if you're not an adult, let's see if we need to make you one
+    else
+        doif ov02 ge ov03
+            base 70
+            setv ov01 1
+        endi
+    endi
+
+
+    subr swim
+        gsub checksurface
+
+*If you have no goal room, get a new destination
+        doif name "room" eq -1
+            gsub newSwimGoal
+        endi
+*You have a goal room. Track how many attempts you've made to get there, reset if exceeding limits
+        addv ov07 1
+        doif ov07 gt 40
+            setv ov07 0
+            gsub newSwimGoal
+        endi
+
+        setv va01 ov08
+        subv va01 posx
+        setv va02 ov09
+        subv va02 posy
+        inst
+        gsub swimvel
+        slow
+        absv va01
+        absv va02
+*We've gotten within proximity of our destination, flag the room variable for reset
+        doif va01 lt 30 and va02 lt 30
+            setv name "room" -1
+        endi
+    retn
+
+    subr swimvel
+* va01/va02 = delta to destination; intent facing then setv vel (never addv velx)
+* Caller wraps gsub swimvel in inst/slow
+
+        doif va01 ne 0
+            setv va04 va01
+            absv va04
+            gsub swimSpeedFromDist
+            setv velx va07
+            doif va01 lt 0
+                gsub turnleft
+                negv velx
+            else
+                gsub turnright
+            endi
+        endi
+        setv va04 va02
+        absv va04
+        gsub swimSpeedFromDist
+        doif va02 le 0
+            setv vely va07
+            negv vely
+        elif va02 gt 0
+            setv vely va07
+        endi
+    retn
+
+
+*Turning Animations
+    subr turnright
+        inst
+        doif pose lt 21
+            lock
+            anim [13 14 15 16 17 18 19 20]
+            over
+            gsub swimRight
+            unlk
+        endi
+    retn
+
+    subr turnleft
+        inst
+        doif pose ge 21
+            lock
+            anim [35 36 37 38 39 40 41 42]
+            over
+            gsub swimLeft
+            unlk
+        endi
+    retn
+
+
+* Scan for food (STAR + inst + mv00); chase with swimvel; eat on contact
+    subr findfood
+        seta mv00 null
+        doif ov00 eq null
+            inst
+            star 2 3 0
+            doif targ ne null and targ ne ownr
+                seta mv00 targ
+            endi
+            targ ownr
+        endi
+        doif ov00 eq null and mv00 eq null
+            seta ov00 null
+            inst
+            star 2 15 0
+            doif targ ne null and targ ne ownr
+                doif spcs ne 24207
+                    doif wdth lt 70
+                        seta mv00 targ
+                    endi
+                endi
+            endi
+            targ ownr
+        endi
+        doif ov00 ne null and seee ownr ov00 eq 1
+            inst
+            targ ov00
+            setv va01 posx
+            setv va02 posy
+            targ ownr
+            subv va01 posx
+            subv va02 posy
+            setv va20 0
+            doif ov00 ne null
+                doif relx ownr ov00 lt 10
+                    doif rely ownr ov00 lt 10
+                        setv va20 1
+                    endi
+                endi
+            endi
+            doif va20 eq 1
+                setv ov14 0
+                mesg writ ov00 12
+                seta ov00 null
+                setv name "room" -1
+            else
+                gsub swimvel
+            endi
+        elif ov00 ne null
+            seta ov00 null
+        endi
+        targ ownr
+        slow
+    retn
+
+* Call the bubble machine and try to make a bubble
+    subr tryBubble
+        doif sorq 2 19 24201 10 eq 1
+            setv va00 rand 0 10
+            doif va00 ge 9
+                doif pose gt 12
+                    setv va00 posr
+                    subv va00 10
+                elif pose le 12
+                    setv va00 posl
+                    subv va00 10
+                endi
+                setv va01 post
+                subv va01 8
+                setv va99 plne
+                addv va99 1
+                new: simp 2 19 24201 "moe_c2tods_bubf" 12 0 va99
+                mvto va00 va01
+                targ ownr
+            endi
+        endi
+    retn
+
+*Breeding. Basically go to the bottom of the water body and lay eggs
+    subr breed
+        lock
+        loop
+            setv vely 1
+            wait tick
+        untl obst down lt 10
+        reps rand 1 3
+            gsub spawnegg
+            wait tick
+        repe
+        unlk
+    retn
+
+    subr spawnegg
+        setv va00 posx
+        setv va01 posy
+        doif type carr eq 6
+            seta va02 carr
+        endi
+        new: simp 2 18 24207 "moe_canopy2_catfish" 1 140 rand 1000 3000
+        mvsf va00 va01
+        doif type va02 eq 6
+            spas va02 targ
+        endi
+        targ ownr
+    retn
+
+    subr flop
+*Start adding to the drowning counter
+        addv ov04 1
+        doif ov04 ge ov05
+            gsub die
+        endi
+        frat 1
+        accg 3
+        inst
+        setv va00 rand 0 1
+        doif va00 ge 1
+            anim [57 58 59 60 61 62 63 64 65 66 67 68 69 255]
+        else
+            anim [43 44 45 46 47 48 49 50 51 52 53 54 55 56 255]
+        endi
+        velo rand -10 10 rand -10 -15
+    retn
+
+    subr die
+        inst
+        setv velx 0
+        setv vely 0
+        gsub spawndetritus
+    retn
+
+    subr spawndetritus
+        setv va00 posl
+        setv va01 post
+        doif carr ne null and type carr eq 8
+            seta va02 carr
+        endi
+        setv va03 ov12
+        setv va11 plne
+        setv va05 49
+        doif va03 eq 1
+            setv va05 63
+        endi
+        addv va05 base
+        new: simp 2 10 24208 "moe_canopy2_catfish" 1 va05 va11
+        mvsf va00 va01
+        doif type va02 eq 8
+            spas va02 targ
+        endi
+        kill ownr
+    retn
+
+    subr swimLeft
+        anim [0 1 2 3 4 5 6 7 8 9 10 11 12 11 10 9 255]
+    retn
+
+    subr swimRight
+        anim [22 23 24 25 26 27 28 29 30 31 32 33 34 33 32 31 255]
+    retn
+
+    subr checksurface
+* Y decreases upward: probe mid-body (POST - HGHT/2); repick if air
+        doif carr eq null
+            setv va00 post
+            setv va01 hght
+            divv va01 2
+            subv va00 va01
+            gsub probeWater
+
+*The surface is too close. We must dive and pick a new direction.
+            doif va00 eq 1
+                addv vely ov11
+                gsub newSwimGoal
+            endi
+        endi
+    retn
+
+    subr probeWater
+        setv va01 rtyp grap posx va00
+        doif va01 ne 8 and va01 ne 9
+            setv va00 1
+        endi
+    retn
+
+
+* The following subroutines are beefy:
+
+* Pick a new swim goal
+    subr newSwimGoal
+* New water room + pickdest; clears arrival debounce (ov09); resets ov07 in pickroomloop
+        setv name "room" -1
+        gsub pickroom
+        gsub pickdest
+        setv ov07 0
+    retn
+
+    subr pickroom
+        setv va00 rand 0 3
+        inst
+        doif va00 eq 0
+            setv name "room" grid ownr rght
+        elif va00 eq 1
+            setv name "room" grid ownr left
+        elif va00 eq 2
+            setv name "room" grid ownr _up_
+        elif va00 eq 3
+            setv name "room" grid ownr down
+        endi
+
+        doif rtyp name "room" <> 8 and rtyp name "room" <> 9
+            setv name "room" -1
+            addv ov10 1
+*You've tried 5 times now to pick a room, just use the room you're currently in.
+            doif ov10 ge 5 and name "room" eq -1
+                setv name "room" room ownr
+                setv ov10 0
+            else
+                gsub pickroom
+            endi
+        endi
+    retn
+
+
+    subr pickdest
+* Random point in name "room"; rloc -> va03-va08, then margins + rand
+        setv va00 name "room"
+        setv va03 0
+        setv va04 0
+        setv va05 0
+        setv va06 0
+        setv va07 0
+        setv va08 0
+        sets va12 rloc va00
+        adds va12 " "
+        setv va09 0
+        loop
+            addv va09 1
+            setv va10 stoi va12
+            doif va09 eq 1
+                setv va03 va10
+            elif va09 eq 2
+                setv va04 va10
+            elif va09 eq 3
+                setv va05 va10
+            elif va09 eq 4
+                setv va06 va10
+            elif va09 eq 5
+                setv va07 va10
+            elif va09 eq 6
+                setv va08 va10
+            endi
+            setv va11 sins va12 1 " "
+            doif va11 eq -1
+                sets va12 ""
+            else
+                setv va00 strl va12
+                subv va00 va11
+                addv va11 1
+                sets va12 subs va12 va11 va00
+            endi
+        untl va09 ge 6 or sins va12 1 " " eq -1
+        setv va00 va03
+        addv va00 24
+        setv va01 va04
+        subv va01 24
+        doif va01 le va00
+            setv ov08 va03
+            addv ov08 va04
+            divv ov08 2
+        else
+            setv ov08 rand va00 va01
+        endi
+        setv va00 va05
+        doif va06 lt va00
+            setv va00 va06
+        endi
+        addv va00 20
+        setv va01 va07
+        doif va08 gt va01
+            setv va01 va08
+        endi
+        subv va01 20
+        doif va01 le va00
+            setv ov09 va00
+            addv ov09 va01
+            divv ov09 2
+        else
+            setv ov09 rand va00 va01
+        endi
+    retn
+
+*Modulates the fish's swim speed so it slows down as it gets closer to its target
+    subr swimSpeedFromDist
+* va04 = distance on one axis; va07 = speed 1..ov06 (full ov06 at 100+, min 1 at 12)
+        doif va04 ge 100
+            setv va07 ov11
+        elif va04 le 20
+            setv va07 .25
+        else
+            setv va07 va04
+            subv va07 20
+            setv va00 ov11
+            subv va00 1
+            mulv va07 va00
+            divv va07 80
+            addv va07 1
+        endi
+    retn
+
+endm
+
+*When you're dropped, do a quick check to see what kind of room you're in and adjust your accg accordingly
+scrp 2 15 24207 5
+    inst
+    setv name "room" -1
+*Call your timer script immediately so you can react to your new circumstances
+    mesg writ ownr 9
+
+endm
+
+scrp 2 15 24207 6
+    setv name "room" -1
+    stop
+endm
+
+
+* --- Eggs (2 18 24207) --------------------------------------------------------
+scrp 2 18 24207 10
+    inst
+    perm 51
+    attr 195
+    elas 1
+    accg 1
+    bhvr 48
+    tick rand 100 250
+    rnge 700
+endm
+
+scrp 2 18 24207 9
+    doif carr ne null and type carr ne 6
+        stop
+    endi
+    doif rtyp room ownr ne 8 and rtyp room ownr ne 9
+        addv ov01 1
+        doif ov01 gt 10
+            kill ownr
+        endi
+        stop
+    endi
+    esee 2 15 24207
+        doif targ ne null
+            addv va00 1
+        endi
+    next
+    targ ownr
+    doif va00 le 4
+        setv va00 posx
+        setv va01 posy
+        doif type carr eq 6
+            seta va02 carr
+        endi
+        new: simp 2 15 24207 "moe_canopy2_catfish" 140 0 rand 1000 3000
+        mvsf va00 va01
+        doif type va02 eq 6
+            spas va02 targ
+        endi
+        kill ownr
+    else
+        setv va10 0
+        esee 2 18 24207
+            doif targ ne null
+                addv va10 1
+            endi
+        next
+        targ ownr
+        doif va10 gt 3
+            kill ownr
+        endi
+    endi
+endm
+
+scrp 2 18 24207 12
+    snde "chwp"
+    stim writ from 80 .4
+    kill ownr
+endm
+
+scrp 2 18 24207 255
+endm
+
+* --- Detritus (2 10 24208) --------------------------------------------------
+scrp 2 10 24208 10
+    inst
+    attr 195
+    elas 1
+    accg 1
+    bhvr 48
+    tick rand 300 800
+    rnge 700
+endm
+
+scrp 2 10 24208 9
+    inst
+    kill ownr
+endm
+
+scrp 2 10 24208 12
+    inst
+    snde "chwp"
+    stim writ from 81 .4
+    kill ownr
+endm
+
+scrp 2 10 24208 255
+endm
+
+
+scrp 2 15 24207 12
+    doif from ne ownr
+        sndc "chwp"
+    endi
+    doif crea from eq 1
+        stim writ targ 80 1
+    endi
+    kill ownr
+endm
+
+* --- Removal ------------------------------------------------------------------
+rscr
+
+enum 2 15 24207
+    kill targ
+next
+scrx 2 15 24207 10
+scrx 2 15 24207 9
+scrx 2 15 24207 12
+scrx 2 15 24207 1
+scrx 2 15 24207 2
+scrx 2 15 24207 3
+scrx 2 15 24207 5
+scrx 2 15 24207 6
+scrx 2 15 24207 255
+
+enum 2 18 24207
+    kill targ
+next
+scrx 2 18 24207 10
+scrx 2 18 24207 9
+scrx 2 18 24207 12
+scrx 2 18 24207 255
+
+enum 2 10 24208
+    kill targ
+next
+scrx 2 10 24208 10
+scrx 2 10 24208 9
+scrx 2 10 24208 12
+scrx 2 10 24208 255

@@ -1,0 +1,208 @@
+inst
+new: simp 2 19 24204 "moe_canopy2_mainflower" 1 0 5000
+show 0
+mvsf 14600 48310
+
+scrp 2 19 24204 10
+	attr 195
+	accg 0
+	elas 100
+	aero 0
+	tick 20
+	velo 2 0
+endm
+
+
+
+scrp 2 19 24204 9
+
+	gsub checkCollisions
+
+
+	gsub bigCloud
+*gsub smallCloud
+
+	subr checkCollisions
+		doif obst left < 20
+			velo 2 0
+		endi
+		doif obst rght < 20
+			velo -2 0
+		endi
+	retn
+
+
+	subr bigCloud
+		reps 1
+			inst
+			setv va01 posx
+			setv va02 post
+			setv va00 rand 0 2
+			mulv va00 20
+			subv va02 60
+			subv va02 rand 20 100
+			subv va01 rand -60 60
+			new: simp 2 19 24207 "moe_canopy2_clouds2" 20 va00 8501
+			gsub calcPlacement
+			mvsf va01 va02
+			targ ownr
+			slow
+		repe
+	retn
+
+	subr smallCloud
+		reps 5
+			setv va01 posx
+			setv va02 post
+			setv va00 rand 0 2
+			mulv va00 20
+
+			subv va02 30
+			subv va02 rand 20 50
+			subv va01 rand -160 160
+
+			new: simp 2 19 24207 "moe_canopy2_cloudssmall" 20 va00 rand 4500 5000
+			gsub calcPlacement
+			mvsf va01 va02
+			frat 2
+			targ ownr
+		repe
+	retn
+
+	subr calcPlacement
+		setv va03 hght
+		divv va03 2
+		setv va04 wdth
+		divv va04 2
+		subv va02 va03
+		subv va01 va04
+	retn
+
+
+
+
+endm
+
+scrp 2 19 24207 10
+	inst
+	frat 2
+	tick 4
+	mira rand 0 1
+	anim [ 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+endm
+
+scrp 2 19 24207 9
+	doif pose ge 19
+		kill ownr
+		stop
+	endi
+	gsub rain
+
+
+	subr rain
+		reps rand 2 5
+			inst
+			setv va00 posl
+			addv va00 60
+			setv va01 post
+			addv va01 hght
+			setv va02 wdth
+			subv va02 100
+			addv va00 rand 0 va02
+
+			subv va01 rand 200 300
+
+			new: simp 2 19 24208 "moe_canopy2_splash" 5 12 rand 1500 3500
+			doif tmvt va00 va01 eq 1
+				mvsf va00 va01
+			else
+				kill targ
+			endi
+			targ ownr
+			slow
+		repe
+
+	retn
+endm
+
+
+scrp 2 19 24208 10
+	inst
+	attr 195
+	accg rand 2 10
+	elas 0
+	aero rand 0 3
+	mira rand 0 1
+	perm rand 0 100
+	frat 1
+	anim [0 1 2 3 4]
+	tick 60
+endm
+
+scrp 2 19 24208 9
+*doif vely gt 1 and pose lt 4
+*	setv va00 pose
+*	addv va00 1
+*	pose va00
+*endi
+	doif obst down lt 1
+		anim [4 3 2 1 0]
+		over
+		kill ownr
+	endi
+
+endm
+
+
+scrp 2 19 24208 6
+	inst
+	setv va02 plne
+	addv va02 1
+	setv va00 posl
+	setv va01 posb
+	setv va03 perm
+	new: simp 2 19 24209 "moe_canopy2_splash" 12 0 va02
+	subv va00 13
+	subv va01 6
+	perm va03
+	doif tmvt va00 va01 eq 1
+		mvto va00 va01
+	else
+		mvsf va00 va01
+	endi
+
+	targ ownr
+	altr room ownr 3 .01
+	frat 1
+	anim [4 3 2 1 0]
+	over
+	kill ownr
+endm
+
+scrp 2 19 24209 10
+	attr 195
+	mira rand 0 1
+	elas 0
+	aero 0
+	accg 1
+	anim [1 2 3 4 5 6 7 8 9 10 11 0]
+	over
+	kill targ
+endm
+
+rscr
+enum 2 19 24204
+	kill targ
+next
+
+enum 2 19 24207
+	kill targ
+next
+
+enum 2 19 24208
+	kill targ
+next
+
+enum 2 19 24209
+	kill targ
+next

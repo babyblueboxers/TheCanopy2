@@ -1,0 +1,288 @@
+* 1. Check if Speech Bubble Factory exists before creating
+setv va00 0
+enum 1 2 10
+	addv va00 1
+next
+
+doif va00 = 0
+	new: simp 1 2 10 "blnk" 0 1 0
+	attr 48
+endi
+
+
+*** Light Emitters (Pose 1)
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_LeftDome"
+mvto 14195 48690
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_RightDome"
+mvto 17460 48420
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_MiddleTop"
+mvto 15960 47820
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_ForestFloor_Left"
+mvto 15000 49000
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_ForestFloor_Right"
+mvto 15960 48950
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_WaterfallCave_Bridge"
+mvto 17230 49135
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_WaterfallCave_BottomLeft"
+mvto 16780 49480
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_WaterfallCave_BottomRight"
+mvto 17560 49480
+emit 1 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_Cave_Right"
+mvto 16160 49520
+emit 1 .25
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_Cave_Middle"
+mvto 15500 49500
+emit 1 .25
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_Cave_Left"
+mvto 14680 49530
+emit 1 .25
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 1 0
+sets ov00 "Light_Cave_Amethyst"
+mvto 14170 49520
+emit 1 .25
+
+*** Heat Emitters (Pose 2)
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_LeftDome"
+mvto 14195 48690
+emit 2 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_RightDome"
+mvto 17460 48420
+emit 2 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_MiddleTop"
+mvto 15915 47820
+emit 2 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_ForestFloor_Left"
+mvto 15000 48940
+emit 2 .6
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_ForestFloor_Right"
+mvto 16080 49000
+emit 2 .6
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_WaterfallCave_Bridge"
+mvto 17230 49135
+emit 2 .6
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_WaterfallCave_BottomLeft"
+mvto 16780 49480
+emit 2 .6
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_WaterfallCave_BottomRight"
+mvto 17610 49480
+emit 2 .6
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Cave_Right"
+mvto 16160 49520
+emit 2 .45
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Cave_Middle"
+mvto 15520 49500
+emit 2 .45
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Cave_Left"
+mvto 14680 49550
+emit 2 .45
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Cave_Amethyst"
+mvto 14100 49500
+emit 2 .45
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Desert"
+mvto 17200 48600
+emit 2 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Desert_Left"
+mvto 16900 48600
+emit 2 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 2 0
+sets ov00 "Heat_Desert_Right"
+mvto 17500 48600
+emit 2 1
+
+*** Water Emitters (Pose 3)
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Forest_Left"
+mvto 14240 48970
+emit 3 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Forest_Middle"
+mvto 15000 48970
+emit 3 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Forest_Right"
+mvto 16000 48970
+emit 3 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Pond_Left"
+mvto 16930 49420
+emit 3 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Pond_Middle"
+mvto 17270 49500
+emit 3 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Pond_Right"
+mvto 17620 49420
+emit 3 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Cave_EntranceRight"
+mvto 16286 49470
+emit 3 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Cave_Middle"
+mvto 15299 49520
+emit 3 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Desert_Right"
+mvto 17435 48600
+emit 3 .25
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 3 0
+sets ov00 "Water_Desert_Left"
+mvto 16860 48600
+emit 3 .25
+
+*** Nutrient Emitters (Pose 4)
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Forest_Middle"
+mvto 15580 48930
+emit 4 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Forest_Left"
+mvto 14220 48900
+emit 4 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Desert"
+mvto 17150 48610
+emit 4 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Pond_Left"
+mvto 16980 49415
+emit 4 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Cave_Middle"
+mvto 17575 49415
+emit 4 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Pond_Left"
+mvto 15230 49520
+emit 4 .5
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 4 0
+sets ov00 "Nutrient_Cave_Right"
+mvto 15920 49520
+emit 4 .5
+
+*** Water Smell (Pose 5)
+new: simp 1 1 24205 "moe_emitterIcons" 1 5 0
+sets ov00 "Smell_Pond_Left"
+mvto 16935 49086
+emit 5 1
+
+new: simp 1 1 24205 "moe_emitterIcons" 1 5 0
+sets ov00 "Smell_Pond_Right"
+mvto 17470 49086
+emit 5 1
+
+* 2. Constructor Script for Emitters (Msg 10)
+scrp 1 1 24205 10
+*attr 6
+	clac 0
+	pose 0
+	show 0
+endm
+
+
+*** Reporting Script (Truncated Integer Coordinates)
+scrp 1 1 24205 1
+	sets va00 ov00
+	adds va00 " - X: "
+
+* Ensure coordinates are treated as integers to strip any trailing formatting
+	setv va01 posx
+	sets va02 vtos va01
+	adds va00 va02
+
+	adds va00 " Y: "
+
+	setv va01 posy
+	sets va02 vtos va01
+	adds va00 va02
+
+	enum 1 2 10
+		mesg wrt+ targ 126 va00 ownr 0
+	next
+endm
+
+*** Removal Script
+rscr
+enum 1 1 24205
+	kill targ
+next
+enum 1 2 10
+	kill targ
+next
+enum 1 2 9
+	kill targ
+next

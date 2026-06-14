@@ -1,0 +1,832 @@
+* ============================================================================
+* moe_canopy2_bluebottle -- ceiling nest bees (family 2)
+* ============================================================================
+* Bee      2 15 24202  Good Critter -- queen (ov99=1) + worker (ov99=0)
+* Nest     2 17 24202  Nest -- growth stages 0-2, pollen economy
+* Detritus 2 10 24202  Bee corpse -- pose 4
+*
+* Sprite: moe_canopy2_bluebottle (5 frames, queen first 3, worker first 8)
+*         nest uses same gallery, 3 frames, first 0
+* BHVR bee: 59 = push+pull+hit+eat+pickup (no swarm; benign hit)
+* Stims:   86 activate | 87 hit | 80 eat | 85 nest activate
+*
+* Bee OV map:
+*   ov99  role (1=queen, 0=worker)
+*   ov00  FSM (queen 0=seek; worker 0=forage 1=return)
+*   ov05  home nest agent
+*   ov06  fly speed (default 3)
+*   ov08  pollen carried (cap 20)
+*   ov10  stuck timer (resets on progress)
+*   ov20  pollen carry cap (20)
+*   ov21  age in in-game days
+*   ov22  last DATE seen
+*   ov23  lifespan in days (1)
+*   ov07  pursuit target (flower or nest); stash via va04 after STAR
+*   ov80  timer period
+*   va04  temp agent ref between STAR and seta ov07 (TARG ne OWNR)
+*
+* Nest OV map:
+*   ov00  growth stage 0/1/2
+*   ov04  last SEAN seen (season age counter)
+*   ov06  queen already sent this spring (0/1)
+*   ov08  stored pollen (same slot meaning as worker carry)
+*   ov21  nest age in completed season changes (2+ for daughter queen)
+*   ov02  threshold for next stage (100 / 250 / 500)
+*   ov24  max stored pollen cap (500)
+*   ov73  pollen cost per worker spawned (25); new nest starts with ov08 = ov73
+*   ov80  nest timer period (180; bees tick ~15-30 so they reach home first)
+*
+* World: SEAN 0=spring 1=summer 2=autumn 3=winter; TIME 4=night, 3=evening
+* Active forage: spring/summer/autumn (sean lt 3), day (time le 2)
+* Winter: bees die with detritus (1000); nest idle; straggler cull only at time eq 4
+* Night: workers return and vanish at nest (no nest cull; avoids pre-empting homeward flight)
+*
+* Inject: queen only (inst block at top). Workers spawned by nest.
+* Install: new + placement only; ov99=1 is the one post-constructor inject tag for queen.
+* Subroutines: no RETN except final RETN per subr -- use DOIF for flow.
+* Death: scrp 1000 only (scripts 9/12 use mesg wrt+ ownr 1000, not gsub across scrp).
+* ============================================================================
+
+* --- Install (inject queen) -- must be at top of file -------------------------
+inst
+new: simp 2 15 24202 "moe_canopy2_bluebottle" 5 3 rand 2000 5000
+setv ov99 1
+doif tmvt mopx mopy eq 1
+    mvto mopx mopy
+else
+    mvsf mopx mopy
+endi
+
+* --- Bee constructor (message 10) --------------------------------------------
+scrp 2 15 24202 10
+    inst
+    attr 199
+    bhvr 59
+    accg 0
+    aero 3
+    perm 60
+    elas 20
+    fric 50
+    rnge 750
+    anim [0 4 255]
+    setv ov06 3
+    setv ov08 0
+    setv ov10 0
+    setv ov20 20
+    setv ov21 0
+    setv ov22 date
+    setv ov23 1
+    setv ov80 rand 15 30
+    seta ov05 null
+    seta ov07 null
+    setv ov00 0
+    setv ov99 0
+    anim [0 4 255]
+    tick ov80
+    frat 2
+endm
+
+* --- Push (message 1) -- stim 86 ---------------------------------------------
+scrp 2 15 24202 1
+    inst
+    doif crea from eq 1
+        doif from ne null
+            targ from
+            doif targ ne null
+                stim writ targ 86 1
+            endi
+        endi
+    endi
+    slow
+endm
+
+* --- Pull (message 2) -- stim 86 ---------------------------------------------
+scrp 2 15 24202 2
+    inst
+    doif crea from eq 1
+        doif from ne null
+            targ from
+            doif targ ne null
+                stim writ targ 86 1
+            endi
+        endi
+    endi
+    slow
+endm
+
+* --- Hit (message 3) -- stim 87 only; no aggression --------------------------
+scrp 2 15 24202 3
+    inst
+    doif crea from eq 1
+        doif from ne null
+            targ from
+            doif targ ne null
+                stim writ targ 87 1
+            endi
+        endi
+    endi
+    slow
+    setv velx rand -2 2
+    setv vely rand -2 2
+endm
+
+* --- Pick up (message 4) -------------------------------------------------------
+scrp 2 15 24202 4
+    inst
+    tick 0
+endm
+
+* --- Drop (message 5) ----------------------------------------------------------
+scrp 2 15 24202 5
+    inst
+    targ ownr
+    tick ov80
+    slow
+endm
+
+* --- Eat (message 12) -- stim 80 -----------------------------------------------
+scrp 2 15 24202 12
+    inst
+    doif crea from eq 1
+        doif from ne null
+            targ from
+            doif targ ne null
+                stim writ targ 80 1
+            endi
+        endi
+    endi
+    slow
+    mesg wrt+ ownr 1000 0 0 0
+endm
+
+* --- Die / corpse spawn (message 1000) -- shared by scripts 9 and 12 ----------
+scrp 2 15 24202 1000
+    inst
+    targ ownr
+    setv va00 posl
+    setv va01 post
+    inst
+    new: simp 2 10 24202 "moe_canopy2_bluebottle" 5 4 rand 50 2500
+    pose 4
+    doif tmvt va00 va01 eq 1
+        mvto va00 va01
+    else
+        mvsf va00 va01
+    endi
+    targ ownr
+    slow
+    kill ownr
+endm
+
+* --- Bee timer (message 9) -----------------------------------------------------
+scrp 2 15 24202 9
+    inst
+    targ ownr
+    doif carr ne null
+        slow
+        stop
+    endi
+    gsub beeAgeDay
+    doif ov21 ge ov23
+        mesg wrt+ ownr 1000 0 0 0
+        stop
+    endi
+    doif sean eq 3
+        mesg wrt+ ownr 1000 0 0 0
+        stop
+    endi
+    addv ov10 1
+    doif rtyp room ownr eq 8 or rtyp room ownr eq 9
+        mesg wrt+ ownr 1000 0 0 0
+        stop
+    endi
+    doif ov99 eq 1
+        doif time ge 3
+            stop
+        endi
+        gsub queenTick
+    else
+        gsub workerTick
+    endi
+    slow
+    tick rand 15 30
+    gsub beeFaceVel
+    stop
+
+    subr beeAgeDay
+        targ ownr
+        setv va00 date
+        doif va00 ne ov22
+            setv ov22 va00
+            addv ov21 1
+        endi
+    retn
+
+    subr beeFaceVel
+        targ ownr
+        doif velx ge 0
+            mira 0
+        else
+            mira 1
+        endi
+    retn
+
+    subr queenTick
+        targ ownr
+        setv va66 rand 0 2
+        doif va66 eq 0
+            gsub queenTrySite
+        endi
+        doif va66 le 2
+            gsub queenWander
+        endi
+    retn
+
+    subr queenWander
+        targ ownr
+        setv va00 rand -3 3
+        setv va01 rand -3 3
+        velo va00 va01
+    retn
+
+    subr queenTrySite
+        targ ownr
+        setv va50 0
+        gsub queenParseCeiling
+        doif va50 eq 1
+            gsub queenCheckNestSpacing
+        endi
+        doif va50 eq 1
+            setv va00 posl
+            setv va01 va57
+            gsub queenValidateCeilingSite
+        endi
+        doif va50 eq 1
+            setv va00 posl
+            setv va01 va57
+            doif tmvt va00 va01 eq 1
+                inst
+                new: simp 2 17 24202 "moe_canopy2_bluebottle" 3 0 2000
+                setv ov00 0
+                setv ov02 100
+                setv ov73 25
+                setv ov08 ov73
+                setv ov80 180
+                tick 180
+                mvsf va00 va01
+                targ ownr
+                slow
+                kill ownr
+            endi
+        endi
+    retn
+
+*Parse rloc: xLeft va53, xRight va54, ceiling Y va55/va56 at edges.
+*va57 = POST for nest: ceiling Y at queen posl, plus offset INTO room (Y grows down).
+*Solid roof: queenValidateCeilingSite -- obst _up_ + DOOR/GRID to room above (rloc is not collision).
+    subr queenParseCeiling
+        targ ownr
+        setv va50 0
+        setv va20 room ownr
+        doif va20 ne -1
+            sets va12 rloc va20
+            adds va12 " "
+            setv va09 0
+            setv va53 0
+            setv va54 0
+            setv va55 0
+            setv va56 0
+            loop
+                addv va09 1
+                setv va18 stoi va12
+                doif va09 eq 1
+                    setv va53 va18
+                elif va09 eq 2
+                    setv va54 va18
+                elif va09 eq 3
+                    setv va55 va18
+                elif va09 eq 4
+                    setv va56 va18
+                endi
+                setv va13 sins va12 1 " "
+                setv va14 strl va12
+                subv va14 va13
+                addv va13 1
+                sets va12 subs va12 va13 va14
+            untl va09 ge 4 or sins va12 1 " " eq -1
+            doif va09 ge 4
+                setv va58 va55
+                subv va58 va56
+                doif va58 lt 0
+                    negv va58
+                endi
+                doif va58 le 8
+                    setv va00 posl
+                    doif va00 ge va53
+                        doif va00 le va54
+                            setv va57 va55
+                            setv va01 va56
+                            subv va01 va55
+                            setv va02 va00
+                            subv va02 va53
+                            setv va03 va54
+                            subv va03 va53
+                            doif va03 gt 0
+                                setv va04 va01
+                                mulv va04 va02
+                                divv va04 va03
+                                addv va57 va04
+                            endi
+                            addv va57 18
+                            setv va50 1
+                        endi
+                    endi
+                endi
+            endi
+        endi
+    retn
+
+    subr queenCheckNestSpacing
+        targ ownr
+        setv va51 1
+        inst
+        esee 2 17 24202
+            doif targ ne null
+                setv va52 relx ownr targ
+                doif va52 lt 0
+                    negv va52
+                endi
+                setv va02 rely ownr targ
+                doif va02 lt 0
+                    negv va02
+                endi
+                doif va52 lt 500
+                    doif va02 lt 500
+                        setv va51 0
+                    endi
+                endi
+            endi
+        next
+        targ ownr
+        slow
+        doif va51 eq 0
+            setv va50 0
+        endi
+    retn
+
+*va00 posl, va01 hang POST. mvto probe; obst _up_; GRID/Door to room above.
+    subr queenValidateCeilingSite
+        targ ownr
+        setv va60 posl
+        setv va61 post
+        setv va03 va01
+        subv va03 10
+        doif tmvt va00 va03 eq 1
+            inst
+            mvto va00 va03
+            setv va02 obst _up_
+            setv va20 room ownr
+            setv va21 grid ownr _up_
+            mvto va60 va61
+            targ ownr
+            slow
+            doif va02 gt 50
+                setv va50 0
+            endi
+            doif va50 eq 1
+                doif va21 ne -1
+                    doif va20 ne -1
+                        setv va22 door va20 va21
+                        doif va22 gt 50
+                            setv va50 0
+                        endi
+                    endi
+                endi
+            endi
+        else
+            setv va50 0
+        endi
+    retn
+
+    subr workerTick
+        targ ownr
+        doif ov05 ne null
+            doif time ge 3
+                setv ov00 1
+                seta ov07 ov05
+                gsub workerReturn
+            elif ov00 eq 1
+                gsub workerReturn
+            else
+                gsub workerForage
+            endi
+        else
+            mesg wrt+ ownr 1000 0 0 0
+        endi
+    retn
+
+    subr workerForage
+        targ ownr
+        doif ov08 ge ov20
+            setv ov00 1
+            seta ov07 ov05
+            gsub workerReturn
+        else
+            doif ov07 eq null
+                gsub starFlower
+            endi
+            doif ov07 eq null
+                gsub workerWander
+            else
+                gsub followTarget
+                gsub workerNearFlower
+                doif va53 eq 1
+                    gsub workerGatherPollen
+                endi
+            endi
+        endi
+    retn
+
+*Flying bees often miss touc; also gather within ~50px (relx/rely)
+    subr workerNearFlower
+        targ ownr
+        setv va53 0
+        doif ov07 ne null
+            inst
+            doif touc ownr ov07 eq 1
+                setv va53 1
+            else
+                setv va00 relx ownr ov07
+                doif va00 lt 0
+                    negv va00
+                endi
+                setv va01 rely ownr ov07
+                doif va01 lt 0
+                    negv va01
+                endi
+                doif va00 le 50
+                    doif va01 le 50
+                        setv va53 1
+                    endi
+                endi
+            endi
+            targ ownr
+            slow
+        endi
+    retn
+
+    subr starFlower
+        seta va04 null
+        inst
+        star 2 7 0
+        doif targ ne null
+            seta va04 targ
+        endi
+        targ ownr
+        slow
+        doif va04 ne null
+            seta ov07 va04
+        endi
+    retn
+
+    subr workerGatherPollen
+        inst
+        targ ov07
+        doif targ ne null
+            velo 0 0
+        endi
+        targ ownr
+        setv va02 rand 5 15
+        addv ov08 va02
+        doif ov08 gt ov20
+            setv ov08 ov20
+        endi
+        setv ov10 0
+        doif ov08 ge ov20
+            setv ov00 1
+            seta ov07 ov05
+        else
+            seta ov07 null
+            gsub starFlower
+        endi
+        slow
+    retn
+
+    subr workerReturn
+        targ ownr
+        doif ov07 eq null
+            seta ov07 ov05
+        endi
+        gsub followTarget
+        setv va53 0
+        inst
+        doif ov05 ne null
+            setv va53 touc ownr ov05
+        endi
+        targ ownr
+        slow
+        doif va53 eq 1
+            doif ov08 gt 0
+                mesg wrt+ ov05 500 ov08 0 0
+            endi
+            setv ov08 0
+            doif time ge 3
+                kill ownr
+            else
+                setv ov00 0
+                seta ov07 null
+                setv ov10 0
+            endi
+        endi
+    retn
+
+    subr workerWander
+        targ ownr
+        setv va00 rand -2 2
+        setv va01 rand -2 2
+        velo va00 va01
+    retn
+
+    subr followTarget
+        targ ownr
+        doif ov07 ne null
+            inst
+            targ ov07
+            doif targ ne null
+                setv va00 posx
+                setv va01 posy
+                targ ownr
+                doif va00 gt posx
+                    addv velx ov06
+                elif va00 lt posx
+                    subv velx ov06
+                endi
+                doif va01 gt posy
+                    addv vely ov06
+                elif va01 lt posy
+                    subv vely ov06
+                endi
+            else
+                targ ownr
+                seta ov07 null
+            endi
+        endi
+    retn
+endm
+
+* --- Nest constructor (message 10) ---------------------------------------------
+scrp 2 17 24202 10
+    inst
+    attr 192
+    bhvr 1
+    accg 0
+    aero 0
+    perm 50
+    elas 0
+    fric 80
+    pose 0
+    setv ov00 0
+    setv ov02 100
+    setv ov73 25
+    setv ov08 ov73
+    setv ov04 sean
+    setv ov06 0
+    setv ov21 0
+    setv ov24 500
+    setv ov80 180
+    tick 180
+endm
+
+* --- Nest push (message 1) -- stim 85 -----------------------------------------
+scrp 2 17 24202 1
+    inst
+    doif crea from eq 1
+        doif from ne null
+            targ from
+            doif targ ne null
+                stim writ targ 85 1
+            endi
+        endi
+    endi
+    slow
+endm
+
+* --- Nest pollen delivery (message 500) ----------------------------------------
+scrp 2 17 24202 500
+    addv ov08 _p1_
+    doif ov08 gt ov24
+        setv ov08 ov24
+    endi
+endm
+
+* --- Nest timer (message 9) ----------------------------------------------------
+scrp 2 17 24202 9
+    inst
+    targ ownr
+    gsub nestAgeSeason
+    gsub nestCapPollen
+    doif sean eq 3
+        doif time eq 4
+            gsub nestCullStragglers
+        endi
+        slow
+        stop
+    endi
+    doif time ge 3
+        slow
+        stop
+    endi
+    gsub nestTryGrow
+    gsub nestTrySpawnWorker
+    gsub nestTrySpawnQueen
+    slow
+    tick ov80
+
+    subr nestCapPollen
+        targ ownr
+        doif ov08 gt ov24
+            setv ov08 ov24
+        endi
+    retn
+
+    subr nestAgeSeason
+        targ ownr
+        setv va00 sean
+        doif va00 ne ov04
+            doif ov04 ge 0
+                addv ov21 1
+            endi
+            setv ov04 va00
+            doif va00 eq 0
+                setv ov06 0
+            endi
+        endi
+    retn
+
+*Winter-only safety: deep night stragglers that never reached the nest
+    subr nestCullStragglers
+        enum 2 15 24202
+            doif targ ne null
+                doif ov05 eq ownr
+                    doif ov99 eq 0
+                        mesg wrt+ targ 1000 0 0 0
+                    endi
+                endi
+            endi
+        next
+        targ ownr
+    retn
+
+    subr nestTrySpawnQueen
+        targ ownr
+        doif sean eq 0
+            doif ov00 ge 2
+                doif ov21 ge 2
+                    doif ov06 eq 0
+                        doif ov08 ge ov73
+                            setv va66 rand 0 3
+                            doif va66 eq 0
+                                setv ov06 1
+                                setv va00 posx
+                                setv va01 posy
+                                inst
+                                new: simp 2 15 24202 "moe_canopy2_bluebottle" 5 3 rand 2000 5000
+                                setv ov99 1
+                                seta ov05 null
+                                mvsf va00 va01
+                                targ ownr
+                                slow
+                            endi
+                        endi
+                    endi
+                endi
+            endi
+        endi
+    retn
+
+    subr nestTryGrow
+        targ ownr
+        doif ov00 lt 2
+            doif ov08 ge ov02
+                addv ov00 1
+                pose ov00
+                doif ov00 eq 1
+                    setv ov02 250
+                elif ov00 eq 2
+                    setv ov02 500
+                endi
+            endi
+        endi
+    retn
+
+    subr nestTrySpawnWorker
+        targ ownr
+        doif sean lt 3
+            doif time lt 3
+                setv va66 rand 0 2
+                doif va66 eq 0
+                    gsub nestCountWorkers
+                    setv va89 2
+                    doif ov00 eq 1
+                        setv va89 3
+                    elif ov00 ge 2
+                        setv va89 4
+                    endi
+                    doif va88 lt va89
+                        doif ov08 ge ov73
+                            setv va00 posx
+                            setv va01 posy
+                            inst
+                            new: simp 2 15 24202 "moe_canopy2_bluebottle" 5 8 rand 2000 5000
+                            seta ov05 ownr
+                            mvsf va00 va01
+                            targ ownr
+                            subv ov08 ov73
+                            slow
+                        endi
+                    endi
+                endi
+            endi
+        endi
+    retn
+
+    subr nestCountWorkers
+        setv va88 0
+        enum 2 15 24202
+            doif targ ne null
+                doif ov05 eq ownr
+                    doif ov99 eq 0
+                        doif carr eq null
+                            addv va88 1
+                        endi
+                    endi
+                endi
+            endi
+        next
+        targ ownr
+    retn
+endm
+
+* --- Detritus constructor (message 10) -----------------------------------------
+scrp 2 10 24202 10
+    inst
+    attr 195
+    bhvr 48
+    accg 1
+    aero 0
+    elas 0
+    perm 60
+    tick rand 400 700
+endm
+
+* --- Detritus timer (message 9) -- decay if not carried ------------------------
+scrp 2 10 24202 9
+    inst
+    doif carr eq null
+        kill ownr
+    endi
+endm
+
+* --- Detritus eat (message 12) -- stim 81 --------------------------------------
+scrp 2 10 24202 12
+    inst
+    lock
+    doif crea from eq 1
+        doif from ne null
+            targ from
+            doif targ ne null
+                stim writ targ 81 1
+            endi
+        endi
+    endi
+    unlk
+    kill ownr
+endm
+
+* --- Removal -------------------------------------------------------------------
+rscr
+enum 2 15 24202
+    kill targ
+next
+enum 2 17 24202
+    kill targ
+next
+enum 2 10 24202
+    kill targ
+next
+scrx 2 15 24202 10
+scrx 2 15 24202 1
+scrx 2 15 24202 2
+scrx 2 15 24202 3
+scrx 2 15 24202 4
+scrx 2 15 24202 5
+scrx 2 15 24202 9
+scrx 2 15 24202 12
+scrx 2 15 24202 1000
+scrx 2 17 24202 10
+scrx 2 17 24202 1
+scrx 2 17 24202 9
+scrx 2 17 24202 500
+scrx 2 10 24202 10
+scrx 2 10 24202 9
+scrx 2 10 24202 12
